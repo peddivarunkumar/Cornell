@@ -146,98 +146,318 @@ summaries = {
 # Initialize Dash app
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets, suppress_callback_exceptions=True)
 
-app.index_string = f"""
+app.index_string = '''
 <!DOCTYPE html>
 <html>
-  <head>
-    {{%metas%}}
-    <title>{{%title%}}</title>
-    {{%favicon%}}
-    {{%css%}}
-    <style>
-      body {{
-        font-family: {FONT_FAMILY};
-        color: {COLORS['text']};
-        background-color: {COLORS['secondary']};
-      }}
-      .card, .dbc-card {{
-        border-radius: 1rem;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        transition: transform 0.3s ease;
-      }}
-      .card:hover, .dbc-card:hover {{
-        transform: translateY(-5px);
-      }}
-
-      /* glow only the text-shadow—no opacity change */
-      @keyframes glowText {{
-        0%   {{ text-shadow: 0 0 5px rgba(255,255,255,0.3); }}
-        50%  {{ text-shadow: 0 0 20px rgba(255,255,255,0.8); }}
-        100% {{ text-shadow: 0 0 5px rgba(255,255,255,0.3); }}
-      }}
-      /* apply to our brand span */
-      .navbar-brand span.brand-glow {{
-        animation: glowText 1200ms ease-in-out infinite;
-        display: inline-block;  /* needed for text-shadow to render consistently */
-      }}
-
-      /* keep the red navbar background & white text */
-      .navbar {{
-        background-color: {COLORS['primary']} !important;
-      }}
-      .navbar-brand, .navbar-nav .nav-link {{
-        color: #ffffff !important;
-        font-weight: 600;
-      }}
-    </style>
-  </head>
-  <body>
-    {{%app_entry%}}
-    <footer>
-      {{%config%}}
-      {{%scripts%}}
-      {{%renderer%}}
-    </footer>
-  </body>
+    <head>
+        {%metas%}
+        <title>{%title%}</title>
+        {%favicon%}
+        {%css%}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                width: 100vw;
+                overflow-x: hidden;
+                font-family: ''' + FONT_FAMILY + ''';
+            }
+            
+            /* Basic container fixes */
+            .container-fluid {
+                width: 100% !important;
+                max-width: none !important;
+                padding: 2rem !important;
+                margin: 0 !important;
+            }
+            
+            /* Navbar styles */
+            .navbar {
+                background: linear-gradient(135deg, ''' + COLORS['primary'] + ''', #8B0000) !important;
+                padding: 1rem;
+                width: 100%;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .navbar::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: 
+                    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 50%),
+                    radial-gradient(circle at 70% 70%, rgba(255,0,0,0.1) 0%, rgba(255,0,0,0) 50%);
+                animation: rotate 20s linear infinite;
+                z-index: 0;
+            }
+            
+            .navbar::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(45deg, 
+                    rgba(255,255,255,0.1) 0%,
+                    rgba(255,255,255,0) 20%,
+                    rgba(255,255,255,0) 80%,
+                    rgba(255,255,255,0.1) 100%);
+                animation: shimmer 3s ease-in-out infinite;
+                z-index: 0;
+            }
+            
+            .navbar-brand {
+                color: white !important;
+                font-weight: bold;
+                transition: all 0.3s ease;
+                position: relative;
+                z-index: 1;
+                text-shadow: 
+                    0 0 10px rgba(255,255,255,0.4),
+                    0 0 20px rgba(255,255,255,0.3),
+                    0 0 30px rgba(255,255,255,0.2),
+                    0 0 40px rgba(255,0,0,0.2);
+                letter-spacing: 0.5px;
+                background: linear-gradient(to right, #fff, #FFD700);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                animation: textGlow 2s ease-in-out infinite alternate;
+            }
+            
+            .navbar-brand:hover {
+                transform: scale(1.02);
+                text-shadow: 
+                    0 0 15px rgba(255,255,255,0.6),
+                    0 0 30px rgba(255,255,255,0.4),
+                    0 0 45px rgba(255,255,255,0.3),
+                    0 0 60px rgba(255,0,0,0.3);
+                animation: textGlowHover 1s ease-in-out infinite alternate;
+            }
+            
+            @keyframes rotate {
+                from {
+                    transform: rotate(0deg);
+                }
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+            
+            @keyframes shimmer {
+                0% {
+                    transform: translateX(-100%);
+                }
+                100% {
+                    transform: translateX(100%);
+                }
+            }
+            
+            @keyframes textGlow {
+                0% {
+                    text-shadow: 
+                        0 0 10px rgba(255,255,255,0.4),
+                        0 0 20px rgba(255,255,255,0.3),
+                        0 0 30px rgba(255,255,255,0.2),
+                        0 0 40px rgba(255,0,0,0.2);
+                }
+                100% {
+                    text-shadow: 
+                        0 0 15px rgba(255,255,255,0.5),
+                        0 0 25px rgba(255,255,255,0.4),
+                        0 0 35px rgba(255,255,255,0.3),
+                        0 0 45px rgba(255,0,0,0.3);
+                }
+            }
+            
+            @keyframes textGlowHover {
+                0% {
+                    text-shadow: 
+                        0 0 15px rgba(255,255,255,0.6),
+                        0 0 30px rgba(255,255,255,0.4),
+                        0 0 45px rgba(255,255,255,0.3),
+                        0 0 60px rgba(255,0,0,0.3);
+                }
+                100% {
+                    text-shadow: 
+                        0 0 20px rgba(255,255,255,0.7),
+                        0 0 35px rgba(255,255,255,0.5),
+                        0 0 50px rgba(255,255,255,0.4),
+                        0 0 65px rgba(255,0,0,0.4);
+                }
+            }
+            
+            /* Tab styles */
+            .nav-tabs {
+                border: none;
+                margin-bottom: 1rem;
+                background-color: white;
+                border-radius: 8px;
+                padding: 0.5rem;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            }
+            
+            .nav-tabs .nav-link {
+                border: none;
+                color: #495057;
+                padding: 0.75rem 1.5rem;
+                margin: 0 0.25rem;
+                white-space: nowrap;
+                border-radius: 6px;
+                transition: all 0.3s ease;
+                font-weight: 500;
+            }
+            
+            .nav-tabs .nav-link:hover {
+                background-color: ''' + COLORS['secondary'] + ''';
+                color: ''' + COLORS['primary'] + ''';
+                transform: translateY(-2px);
+            }
+            
+            .nav-tabs .nav-link.active {
+                color: white;
+                background-color: ''' + COLORS['primary'] + ''';
+                box-shadow: 0 4px 8px rgba(179, 27, 27, 0.2);
+                transform: translateY(-2px);
+                font-weight: 600;
+            }
+            
+            /* Card styles */
+            .card {
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                margin-bottom: 2rem;
+                width: 100%;
+                padding: 1.5rem;
+            }
+            
+            /* Graph container styles */
+            .graph-container {
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding: 1rem;
+                margin: 1rem 0;
+            }
+            
+            /* Mobile specific styles */
+            @media (max-width: 768px) {
+                .container-fluid {
+                    padding: 1rem !important;
+                }
+                
+                .navbar {
+                    padding: 0.5rem;
+                }
+                
+                .navbar-brand {
+                    font-size: 1rem;
+                }
+                
+                .nav-tabs {
+                    padding: 0.25rem;
+                }
+                
+                .nav-tabs .nav-link {
+                    padding: 0.5rem 1rem;
+                    margin: 0.125rem;
+                    font-size: 0.9rem;
+                }
+                
+                .card {
+                    margin: 1rem 0;
+                    padding: 1rem;
+                }
+                
+                .row {
+                    margin: 0 !important;
+                }
+                
+                .col, [class*="col-"] {
+                    padding: 0.5rem !important;
+                }
+                
+                .graph-container {
+                    padding: 0.5rem;
+                    margin: 0.5rem 0;
+                }
+            }
+            
+            /* Plot container fixes */
+            .js-plotly-plot, .plot-container {
+                width: 100% !important;
+            }
+            
+            .main-svg {
+                width: 100% !important;
+            }
+        </style>
+    </head>
+    <body>
+        {%app_entry%}
+        <footer>
+            {%config%}
+            {%scripts%}
+            {%renderer%}
+        </footer>
+    </body>
 </html>
-"""
-
-
+'''
 
 # App Layout
-app.layout = dbc.Container(
-    fluid=True,
-    children=[
-        dbc.NavbarSimple(
-            brand=html.Span(
-                "CORNELL EMERGING MARKET MULTINATIONALS REPORT DASHBOARD",
-                className="brand-glow",
-                style={'fontFamily': FONT_FAMILY, 'fontWeight': '600'}
+app.layout = html.Div([
+    dbc.Navbar(
+        dbc.Container(
+            [
+                html.Span(
+                    "Cornell Emerging Market Multinationals Report Dashboard",
+                    className="navbar-brand",
+                    style={
+                        'whiteSpace': 'normal',
+                        'wordBreak': 'break-word',
+                        'fontSize': '1.5rem',
+                        'fontWeight': 'bold'
+                    }
+                )
+            ],
+            fluid=True,
+        ),
+        color=COLORS['primary'],
+        dark=True,
+        className="mb-4",
+    ),
+    dbc.Container(
+        [
+            # Main Tabs
+            dbc.Tabs(
+                id="tabs",
+                active_tab="overview",
+                className="nav-fill w-100 mb-4",
+                children=[
+                    dbc.Tab(label="Overview", tab_id="overview"),
+                    dbc.Tab(label="Trends", tab_id="trends"),
+                    dbc.Tab(label="Distribution", tab_id="distribution"),
+                    dbc.Tab(label="Macro & ESG", tab_id="macro"),
+                    dbc.Tab(label="Correlations", tab_id="correlations"),
+                    dbc.Tab(label="Future", tab_id="future"),
+                ],
             ),
-            color=COLORS['primary'], dark=True,
-            class_name="mb-4 navbar"
-        ),
-        # Main Tabs
-        dbc.Tabs(
-            id="tabs", active_tab="overview",
-            class_name="mb-4",
-            children=[
-                dbc.Tab(label="Overview", tab_id="overview", label_style={'font-weight': '600'}),
-                dbc.Tab(label="Trends", tab_id="trends"),
-                dbc.Tab(label="Distribution", tab_id="distribution"),
-                dbc.Tab(label="Macro & ESG", tab_id="macro"),
-                dbc.Tab(label="Correlations", tab_id="correlations"),
-                dbc.Tab(label="Future", tab_id="future"),
-            ]
-        ),
-        dcc.Loading(
-          id="loading-content",
-          type="circle",
-          color=COLORS['primary'],
-          children=html.Div(id="content", className="animate__animated animate__fadeIn")
-        )
-    ]
-)
+            dcc.Loading(
+                id="loading-content",
+                type="circle",
+                color=COLORS['primary'],
+                children=html.Div(id="content")
+            )
+        ],
+        fluid=True,
+        className="px-2 px-md-4"  # Add padding that's smaller on mobile
+    )
+], className="w-100 h-100 m-0 p-0")
 
 # Callback: Render Content for Tabs
 @app.callback(Output("content", "children"), Input("tabs", "active_tab"))
@@ -246,7 +466,7 @@ def render_content(active_tab):
         return dbc.Container([
             dbc.Row([
                 dbc.Col([
-                    html.Label("Select Year:", className="h5", style={'fontFamily': FONT_FAMILY}),
+                    html.Label("Select Year:", className="h5 mb-2"),
                     dcc.Dropdown(
                         id='overview_year',
                         options=[{'label': y, 'value': y} for y in df.year],
@@ -254,49 +474,61 @@ def render_content(active_tab):
                         clearable=False,
                         className="mb-3"
                     ),
-                ], width=12),
+                ], xs=12),
             ]),
             dbc.Row([
                 dbc.Col([
                     dbc.Card(
                         dbc.CardBody([
                             html.H4("Yearly Summary", className="card-title"),
-                            html.Div(id='overview_text', style={'whiteSpace': 'pre-line'})
+                            html.Div(id='overview_text', className="overview-text")
                         ]),
-                        class_name="shadow mb-4 animate__animated animate__fadeInUp"
+                        className="mb-3"
                     )
-                ], width=6),
+                ], xs=12, md=6),
                 dbc.Col([
                     dbc.Card(
                         dbc.CardBody([
                             html.H4("Key Metrics", className="card-title"),
                             html.Div(id='overview_metrics')
                         ]),
-                        class_name="shadow mb-4 animate__animated animate__fadeInUp"
+                        className="mb-3"
                     )
-                ], width=6)
+                ], xs=12, md=6)
             ]),
             dbc.Row([
                 dbc.Col([
                     dbc.Card(
                         dbc.CardBody([
                             html.H4("Top Countries in Fortune 500", className="card-title"),
-                            dcc.Graph(id='overview_countries', config={'displayModeBar': False})
+                            html.Div(
+                                dcc.Graph(
+                                    id='overview_countries',
+                                    config={'displayModeBar': False, 'responsive': True}
+                                ),
+                                className="graph-container"
+                            )
                         ]),
-                        class_name="shadow mb-4 animate__animated animate__fadeInUp"
+                        className="mb-3"
                     )
-                ], width=6),
+                ], xs=12, md=6),
                 dbc.Col([
                     dbc.Card(
                         dbc.CardBody([
                             html.H4("FDI Flows", className="card-title"),
-                            dcc.Graph(id='overview_fdi', config={'displayModeBar': False})
+                            html.Div(
+                                dcc.Graph(
+                                    id='overview_fdi',
+                                    config={'displayModeBar': False, 'responsive': True}
+                                ),
+                                className="graph-container"
+                            )
                         ]),
-                        class_name="shadow mb-4 animate__animated animate__fadeInUp"
+                        className="mb-3"
                     )
-                ], width=6)
+                ], xs=12, md=6)
             ])
-        ])
+        ], fluid=True, className="px-3")
     elif active_tab == "trends":
         figs = [
             px.line(df, x='year', y=['USA','China','India'], title="Fortune Global 500 Counts"),
@@ -330,31 +562,40 @@ def render_content(active_tab):
                     dbc.Card(
                         dbc.CardBody([
                             html.H4("eMNC Distribution by Country", className="card-title"),
-                            dcc.Graph(id='pie1', config={'displayModeBar': False})
+                            html.Div(
+                                dcc.Graph(id='pie1', config={'displayModeBar': False}),
+                                className="graph-container"
+                            )
                         ]),
                         class_name="shadow mb-4 animate__animated animate__fadeInUp"
                     )
-                ], width=6),
+                ], width=12, lg=6),
                 dbc.Col([
                     dbc.Card(
                         dbc.CardBody([
                             html.H4("FDI Distribution", className="card-title"),
-                            dcc.Graph(id='pie2', config={'displayModeBar': False})
+                            html.Div(
+                                dcc.Graph(id='pie2', config={'displayModeBar': False}),
+                                className="graph-container"
+                            )
                         ]),
                         class_name="shadow mb-4 animate__animated animate__fadeInUp"
                     )
-                ], width=6)
+                ], width=12, lg=6)
             ]),
             dbc.Row([
                 dbc.Col([
                     dbc.Card(
                         dbc.CardBody([
                             html.H4("Investment Type Distribution", className="card-title"),
-                            dcc.Graph(id='pie3', config={'displayModeBar': False})
+                            html.Div(
+                                dcc.Graph(id='pie3', config={'displayModeBar': False}),
+                                className="graph-container"
+                            )
                         ]),
                         class_name="shadow mb-4 animate__animated animate__fadeInUp"
                     )
-                ], width=6),
+                ], width=12, lg=6),
                 dbc.Col([
                     dbc.Card(
                         dbc.CardBody([
@@ -363,16 +604,58 @@ def render_content(active_tab):
                         ]),
                         class_name="shadow mb-4 animate__animated animate__fadeInUp"
                     )
-                ], width=6)
+                ], width=12, lg=6)
             ])
-        ])
+        ], fluid=True)
     elif active_tab == "macro":
-        return dbc.Row([
-            dbc.Col(dcc.Graph(figure=px.line(df, x='year', y='GDP_share', title="Share of World GDP (%)")), width=6),
-            dbc.Col(dcc.Graph(figure=px.line(df, x='year', y='GDP_growth', title="Avg GDP Growth (%)")), width=6),
-            dbc.Col(dcc.Graph(figure=px.line(df, x='year', y='D_ESG', title="D-ESG Score")), width=6),
-            dbc.Col(dcc.Graph(figure=px.bar(df, x='year', y='EMNC_share', title="eMNCs as % of Fortune 500")), width=6),
-        ])
+        return dbc.Container([
+            dbc.Row([
+                dbc.Col([
+                    dbc.Card(
+                        dbc.CardBody([
+                            html.Div(
+                                dcc.Graph(figure=px.line(df, x='year', y='GDP_share', title="Share of World GDP (%)"), config={'displayModeBar': False}),
+                                className="graph-container"
+                            )
+                        ]),
+                        class_name="shadow mb-4 animate__animated animate__fadeInUp"
+                    )
+                ], width=12, lg=6),
+                dbc.Col([
+                    dbc.Card(
+                        dbc.CardBody([
+                            html.Div(
+                                dcc.Graph(figure=px.line(df, x='year', y='GDP_growth', title="Avg GDP Growth (%)"), config={'displayModeBar': False}),
+                                className="graph-container"
+                            )
+                        ]),
+                        class_name="shadow mb-4 animate__animated animate__fadeInUp"
+                    )
+                ], width=12, lg=6),
+                dbc.Col([
+                    dbc.Card(
+                        dbc.CardBody([
+                            html.Div(
+                                dcc.Graph(figure=px.line(df, x='year', y='D_ESG', title="D-ESG Score"), config={'displayModeBar': False}),
+                                className="graph-container"
+                            )
+                        ]),
+                        class_name="shadow mb-4 animate__animated animate__fadeInUp"
+                    )
+                ], width=12, lg=6),
+                dbc.Col([
+                    dbc.Card(
+                        dbc.CardBody([
+                            html.Div(
+                                dcc.Graph(figure=px.bar(df, x='year', y='EMNC_share', title="eMNCs as % of Fortune 500"), config={'displayModeBar': False}),
+                                className="graph-container"
+                            )
+                        ]),
+                        class_name="shadow mb-4 animate__animated animate__fadeInUp"
+                    )
+                ], width=12, lg=6)
+            ])
+        ], fluid=True)
     elif active_tab == "correlations":
         return dbc.Container([
             dbc.Row([
@@ -381,7 +664,10 @@ def render_content(active_tab):
                         dbc.CardBody([
                             html.H4("Correlation Heatmap", className="card-title"),
                             html.P("Explore relationships between key metrics", className="text-muted"),
-                            dcc.Graph(id='correlation_heatmap', config={'displayModeBar': False})
+                            html.Div(
+                                dcc.Graph(id='correlation_heatmap', config={'displayModeBar': False}),
+                                className="graph-container"
+                            )
                         ]),
                         class_name="shadow mb-4 animate__animated animate__fadeInUp"
                     )
@@ -396,7 +682,7 @@ def render_content(active_tab):
                         ]),
                         class_name="shadow mb-4 animate__animated animate__fadeInUp"
                     )
-                ], width=6),
+                ], width=12, lg=6),
                 dbc.Col([
                     dbc.Card(
                         dbc.CardBody([
@@ -405,9 +691,9 @@ def render_content(active_tab):
                         ]),
                         class_name="shadow mb-4 animate__animated animate__fadeInUp"
                     )
-                ], width=6)
+                ], width=12, lg=6)
             ])
-        ])
+        ], fluid=True)
     elif active_tab == "future":
         return dbc.Container([
             # Projections Section
@@ -437,7 +723,7 @@ def render_content(active_tab):
                                             class_name="mb-3 border-0",
                                             style={'background-color': COLORS['secondary']}
                                         )
-                                    ], width=4),
+                                    ], width=12, lg=4),
                                     dbc.Col([
                                         dbc.Card(
                                             dbc.CardBody([
@@ -457,7 +743,7 @@ def render_content(active_tab):
                                             class_name="mb-3 border-0",
                                             style={'background-color': COLORS['secondary']}
                                         )
-                                    ], width=4),
+                                    ], width=12, lg=4),
                                     dbc.Col([
                                         dbc.Card(
                                             dbc.CardBody([
@@ -477,7 +763,7 @@ def render_content(active_tab):
                                             class_name="mb-3 border-0",
                                             style={'background-color': COLORS['secondary']}
                                         )
-                                    ], width=4)
+                                    ], width=12, lg=4)
                                 ])
                             ])
                         ]),
@@ -508,7 +794,7 @@ def render_content(active_tab):
                                             class_name="mb-3 border-0",
                                             style={'background-color': COLORS['secondary']}
                                         )
-                                    ], width=6),
+                                    ], width=12, lg=6),
                                     dbc.Col([
                                         dbc.Card(
                                             dbc.CardBody([
@@ -523,7 +809,7 @@ def render_content(active_tab):
                                             class_name="mb-3 border-0",
                                             style={'background-color': COLORS['secondary']}
                                         )
-                                    ], width=6)
+                                    ], width=12, lg=6)
                                 ]),
                                 dbc.Row([
                                     dbc.Col([
@@ -540,7 +826,7 @@ def render_content(active_tab):
                                             class_name="mb-3 border-0",
                                             style={'background-color': COLORS['secondary']}
                                         )
-                                    ], width=6),
+                                    ], width=12, lg=6),
                                     dbc.Col([
                                         dbc.Card(
                                             dbc.CardBody([
@@ -555,7 +841,7 @@ def render_content(active_tab):
                                             class_name="mb-3 border-0",
                                             style={'background-color': COLORS['secondary']}
                                         )
-                                    ], width=6)
+                                    ], width=12, lg=6)
                                 ])
                             ])
                         ]),
@@ -588,7 +874,7 @@ def render_content(active_tab):
                                             class_name="mb-3 border-0",
                                             style={'background-color': COLORS['secondary']}
                                         )
-                                    ], width=6),
+                                    ], width=12, lg=6),
                                     dbc.Col([
                                         dbc.Card(
                                             dbc.CardBody([
@@ -605,7 +891,7 @@ def render_content(active_tab):
                                             class_name="mb-3 border-0",
                                             style={'background-color': COLORS['secondary']}
                                         )
-                                    ], width=6)
+                                    ], width=12, lg=6)
                                 ])
                             ])
                         ]),
@@ -614,7 +900,7 @@ def render_content(active_tab):
                     )
                 ], width=12),
             ])
-        ])
+        ], fluid=True)
     return ""
 
 # Callback: Update Overview Text
@@ -679,7 +965,11 @@ def update_overview_countries(year):
         showlegend=False,
         margin=dict(l=20, r=20, t=20, b=20),
         plot_bgcolor='white',
-        paper_bgcolor='white'
+        paper_bgcolor='white',
+        autosize=True,
+        height=300,  # Fixed height for mobile
+        xaxis=dict(fixedrange=True),  # Disable zoom
+        yaxis=dict(fixedrange=True)   # Disable zoom
     )
     return fig
 
@@ -702,7 +992,11 @@ def update_overview_fdi(year):
         showlegend=False,
         margin=dict(l=20, r=20, t=20, b=20),
         plot_bgcolor='white',
-        paper_bgcolor='white'
+        paper_bgcolor='white',
+        autosize=True,
+        height=300,  # Fixed height for mobile
+        xaxis=dict(fixedrange=True),  # Disable zoom
+        yaxis=dict(fixedrange=True)   # Disable zoom
     )
     return fig
 
@@ -849,7 +1143,7 @@ def update_correlations(active_tab):
         "Greenfield vs. M&A share: Perfect inverse (r = –1.00) – as firms shift toward new greenfield projects, they correspondingly pursue fewer acquisitions.",
         "EMNC count vs. EMNC share: Perfect positive (r = +1.00) – since share is derived from count, this validates our ratio calculation.",
         "Inward FDI vs. Billionaire count: Very strong positive (r ≈ +0.999) – higher foreign inflows coincide with rising domestic wealth concentration.",
-        "India’s Fortune 500 count vs. OFDI: Very strong positive (r ≈ +0.997) – India’s outbound investments mirror its growing Fortune 500 presence.",
+        "India's Fortune 500 count vs. OFDI: Very strong positive (r ≈ +0.997) – India's outbound investments mirror its growing Fortune 500 presence.",
         "Inward FDI vs. ESG score: Very strong positive (r ≈ +0.995) – global investors favor EMNCs with robust ESG performance."
     ]
 
@@ -884,8 +1178,8 @@ def update_correlations(active_tab):
 
     # Key insights
     insights = [
-        "Emerging‐market multinationals are both drivers and beneficiaries of FDI flows, underscoring their strategic economic role.",
-        "Investment type mix matters: the perfect trade‐off between greenfield spending and M&A highlights distinct market‐entry strategies.",
+        "Emerging-market multinationals are both drivers and beneficiaries of FDI flows, underscoring their strategic economic role.",
+        "Investment type mix matters: the perfect trade-off between greenfield spending and M&A highlights distinct market-entry strategies.",
         "Wealth indicators (billionaire counts) track closely with FDI, reflecting the interplay between capital mobility and domestic wealth creation.",
         "ESG leadership attracts capital: the high correlation with IFDI suggests sustainability performance is increasingly table stakes for global investors.",
         "Foreign direct investment is a cornerstone of wealth creation in emerging markets, evidenced by its near-perfect link to billionaire growth.",
