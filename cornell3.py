@@ -230,7 +230,12 @@ app.layout = dbc.Container(
                 dbc.Tab(label="Future", tab_id="future"),
             ]
         ),
-        html.Div(id="content", className="animate__animated animate__fadeIn")
+        dcc.Loading(
+          id="loading-content",
+          type="circle",
+          color=COLORS['primary'],
+          children=html.Div(id="content", className="animate__animated animate__fadeIn")
+        )
     ]
 )
 
